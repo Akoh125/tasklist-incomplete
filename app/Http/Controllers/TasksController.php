@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use App\Models\Task;    // 追加
+use App\Models\Task;
 
 class TasksController extends Controller
 {
@@ -14,12 +14,12 @@ class TasksController extends Controller
     public function index()
     {
         // タスク一覧を取得
-        $tasks = Task::all();         // 追加
+        $tasks = Task::all();         
 
         // タスク一覧ビューでそれを表示
-        return view('tasks.index', [     // 追加
-            'tasks' => $tasks,        // 追加
-        ]);                                 // 追加
+        return view('tasks.index', [     
+            'tasks' => $tasks,        
+        ]);                                
     }
 
         // getでtasks/createにアクセスされた場合の「新規登録画面表示処理」
@@ -47,27 +47,31 @@ class TasksController extends Controller
 
        // getでmessages/idにアクセスされた場合の「取得表示処理」
     public function show($id)
-    {
-        // idの値でメッセージを検索して取得
-        $task = Task::findOrFail($id);
+{
+    $task = Task::findOrFail($id);
 
-        // メッセージ詳細ビューでそれを表示
+    if (\Auth::id() !== $task->user_id) {
         return view('tasks.show', [
-            'task' => $task,
+            'task' => $task
         ]);
     }
+
+    return view('dashboard');
+}
 
         // getでmessages/id/editにアクセスされた場合の「更新画面表示処理」
     public function edit($id)
-    {
-        // idの値でメッセージを検索して取得
-        $task = Task::findOrFail($id);
+{
+    $task = Task::findOrFail($id);
 
-        // メッセージ編集ビューでそれを表示
+    if (\Auth::id() !== $task->user_id) {
         return view('tasks.edit', [
-            'task' => $task,
+            'task' => $task
         ]);
     }
+
+    return view('dashboard');
+}
 
     // putまたはpatchでtasks/idにアクセスされた場合の「更新処理」
     public function update(Request $request, $id)
@@ -84,13 +88,13 @@ class TasksController extends Controller
 
     // deleteでmessages/idにアクセスされた場合の「削除処理」
     public function destroy($id)
-    {
-        // idの値でメッセージを検索して取得
-        $task = Task::findOrFail($id);
-        // メッセージを削除
-        $task->delete();
+{
+    $task = Task::findOrFail($id);
 
-        // トップページへリダイレクトさせる
-        return redirect('/');
+    if (\Auth::id() !== $task->user_id) {
+        $task->delete();
     }
+
+    return view('dashboard');
+}
 }
